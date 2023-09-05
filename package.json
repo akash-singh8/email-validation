@@ -1,0 +1,24 @@
+{
+  "name": "email-validation",
+  "version": "1.0.0",
+  "description": "Email validation system using nodejs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akash-singh8/email-validation.git"
+  },
+  "keywords": [
+    "nodejs",
+    "email-validation",
+    "email-verification"
+  ],
+  "author": "Akash",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/akash-singh8/email-validation/issues"
+  },
+  "homepage": "https://github.com/akash-singh8/email-validation#readme"
+}
