@@ -20,5 +20,16 @@
   "bugs": {
     "url": "https://github.com/akash-singh8/email-validation/issues"
   },
-  "homepage": "https://github.com/akash-singh8/email-validation#readme"
+  "homepage": "https://github.com/akash-singh8/email-validation#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.5.0",
+    "nodemailer": "^6.9.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
 }
