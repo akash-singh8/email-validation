@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 dotenv.config();
 const app = express();
 
+app.use(express.json());
+
 const mongodb_uri = process.env.MONGODB_URI;
 
 if (!mongodb_uri) {
