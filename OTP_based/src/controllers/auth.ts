@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import User from "../models/Users";
 import sendMail from "../controllers/sendMail";
+import { signupInputSchema } from "../validation/authValidation";
 
 type SignupUserData = {
   name: string;
@@ -10,10 +11,20 @@ type SignupUserData = {
   password: string;
 };
 
-// add backend validation
-
 export const handleSignup = async (req: Request, res: Response) => {
-  const { name, email, password }: SignupUserData = req.body;
+  const bodyData: SignupUserData = req.body;
+
+  const isValidInput = signupInputSchema.safeParse(bodyData);
+
+  if (!isValidInput.success) {
+    res.status(400).json({
+      message: isValidInput.error.issues[0].message,
+      error: isValidInput.error,
+    });
+    return;
+  }
+
+  const { name, email, password } = isValidInput.data;
 
   try {
     const user = await User.findOne({ email });
