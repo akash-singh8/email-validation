@@ -4,12 +4,7 @@ import bcrypt from "bcrypt";
 import User from "../models/Users";
 import sendMail from "../controllers/sendMail";
 import { signupInputSchema } from "../validation/authValidation";
-
-type SignupUserData = {
-  name: string;
-  email: string;
-  password: string;
-};
+import { SignupUserData } from "../types/authData";
 
 export const handleSignup = async (req: Request, res: Response) => {
   const bodyData: SignupUserData = req.body;
