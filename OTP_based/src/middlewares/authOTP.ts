@@ -41,7 +41,14 @@ export const authenticate_OTP_Req = async (
       return;
     }
 
-    if (user.OTP_Attempt >= 10) {
+    if (user.verified) {
+      res.status(404).json({
+        message: `${user.email} is already verified`,
+      });
+      return;
+    }
+
+    if (user.incorrectAttempt >= 7 || user.OTP_Attempt >= 10) {
       await User.updateOne({ _id: user._id }, { banned: true });
 
       res.status(403).json({
