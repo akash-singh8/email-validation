@@ -32,20 +32,14 @@ export const handleSignup = async (req: Request, res: Response) => {
       return;
     }
 
-    if (!process.env.JWT_OTP_SECRET || !process.env.JWT_AUTH_SECRET) {
-      throw new Error("JWT_SECRET environment variable is not defined.");
+    if (!process.env.JWT_AUTH_SECRET) {
+      throw new Error("JWT_AUTH_SECRET environment variable is not defined.");
     }
 
     const OTP = Math.floor(Math.random() * 999999);
     await sendMail(email, OTP);
 
-    const encrypted_OTP = jwt.sign(
-      { OTP: OTP, attempt: 0 },
-      process.env.JWT_OTP_SECRET,
-      {
-        expiresIn: "5m",
-      }
-    );
+    const encrypted_OTP = await bcrypt.hash(OTP.toString(10), 11);
     const encrypted_Pswd = await bcrypt.hash(password, 11);
 
     const newUser = new User({
@@ -53,6 +47,7 @@ export const handleSignup = async (req: Request, res: Response) => {
       email,
       password: encrypted_Pswd,
       OTP: encrypted_OTP,
+      OTP_Attempt: 1,
     });
     await newUser.save();
 
