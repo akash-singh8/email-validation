@@ -22,6 +22,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  OTP_Attempt: {
+    type: Number,
+    default: 0,
+  },
   incorrectAttempt: {
     type: Number,
     default: 0,
