@@ -2,12 +2,14 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRouter from "./routes/auth";
+import linkRouter from "./routes/link";
 
 dotenv.config();
 const app = express();
 
 app.use(express.json());
 app.use("/auth", authRouter);
+app.use("/link", linkRouter);
 
 const mongodb_uri = process.env.MONGODB_URI;
 
