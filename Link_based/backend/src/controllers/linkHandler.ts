@@ -10,7 +10,7 @@ export const generateLink = (email: string): string | undefined => {
       throw new Error("BASE_URL environment variable is not defined.");
     }
 
-    const link = jwt.sign(email, process.env.JWT_OTP_SECRET, {
+    const link = jwt.sign({ email }, process.env.JWT_OTP_SECRET, {
       expiresIn: "5m",
     });
 

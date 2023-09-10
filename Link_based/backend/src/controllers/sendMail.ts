@@ -23,7 +23,7 @@ const sendMail = async (email: string): MailPromise => {
           <body>
             <p>Dear User,</p>
             <p>Link for account verification:</p>
-            <a href="${link}">${link}</a>
+            <a href="${link}">${link?.slice(0, 80)}</a>
             <p>Please click on the link to verify your account.</p>
             <p>The link is valid for 5 minutes only.</p>
             <br>
@@ -38,15 +38,18 @@ const sendMail = async (email: string): MailPromise => {
   return new Promise((resolve, reject) => {
     if (!link) {
       reject("Verification link not found");
+    } else {
+      mailTransporter.sendMail(mailDetails, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          console.log(
+            `Successfully send verification link to ${data.accepted}`
+          );
+          resolve(true);
+        }
+      });
     }
-    mailTransporter.sendMail(mailDetails, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        console.log(`Successfully send verification link to ${data.accepted}`);
-        resolve(true);
-      }
-    });
   });
 };
 
