@@ -5,15 +5,15 @@ import sendMail from "./sendMail";
 
 export const generateLink = (email: string): string | undefined => {
   try {
-    if (!process.env.JWT_OTP_SECRET) {
-      throw new Error("JWT_OTP_SECRET environment variable is not defined.");
+    if (!process.env.JWT_LINK_SECRET) {
+      throw new Error("JWT_LINK_SECRET environment variable is not defined.");
     }
 
     if (!process.env.BASE_URL) {
       throw new Error("BASE_URL environment variable is not defined.");
     }
 
-    const link = jwt.sign({ email }, process.env.JWT_OTP_SECRET, {
+    const link = jwt.sign({ email }, process.env.JWT_LINK_SECRET, {
       expiresIn: "5m",
     });
 
@@ -24,8 +24,11 @@ export const generateLink = (email: string): string | undefined => {
   }
 };
 
-const getUser = async (userID: string, res: Response) => {
-  const user = await User.findById(userID);
+const getUser = async (
+  field: { _id?: string; email?: string },
+  res: Response
+) => {
+  const user = await User.findOne(field);
 
   if (!user || user.banned) {
     res.status(403).json({
@@ -59,7 +62,7 @@ export const resendLink = async (req: Request, res: Response) => {
   try {
     if (!userID) throw new Error("User id not found");
 
-    const user = await getUser(userID, res);
+    const user = await getUser({ _id: userID }, res);
     if (!user) return;
 
     await User.updateOne({ _id: user._id }, { $inc: { linkGenerated: 1 } });
@@ -70,6 +73,43 @@ export const resendLink = async (req: Request, res: Response) => {
     res
       .status(500)
       .json({ message: "Internal server error while resending Link" });
+    console.error(err);
+  }
+};
+
+export const verifyLink = async (req: Request, res: Response) => {
+  const userToken: string = req.body.userToken;
+
+  try {
+    if (!userToken) {
+      res.status(403).json({ message: "User verification token not found" });
+      return;
+    }
+
+    if (!process.env.JWT_LINK_SECRET) {
+      throw new Error("JWT_LINK_SECRET environment variable is not defined.");
+    }
+
+    let data;
+
+    try {
+      data = jwt.verify(userToken, process.env.JWT_LINK_SECRET);
+      if (typeof data === "string") throw new Error("Invalid decrypted data");
+    } catch (err) {
+      res.status(404).json({ message: "Link expired, resend new Link!" });
+      return;
+    }
+
+    const user = await getUser({ email: data.email }, res);
+    if (!user) return;
+
+    await User.updateOne({ _id: user._id }, { verified: true });
+
+    res.status(201).json({ message: "User verified" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Internal server error during Link verification" });
     console.error(err);
   }
 };
