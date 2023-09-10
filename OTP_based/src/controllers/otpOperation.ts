@@ -7,11 +7,11 @@ import { otpInputSchema } from "../validation/otpValidation";
 export const resendOTP = async (req: Request, res: Response) => {
   const user = req.body.user;
 
-  if (!user) throw new Error("User data now available");
-  if (!process.env.JWT_OTP_SECRET)
-    throw new Error("JWT_OTP_SECRET environment variable is not defined.");
-
   try {
+    if (!user) throw new Error("User data not available");
+    if (!process.env.JWT_OTP_SECRET)
+      throw new Error("JWT_OTP_SECRET environment variable is not defined.");
+
     const new_OTP = Math.floor(Math.random() * 999999);
     const encrypted_OTP = jwt.sign(
       { OTP: new_OTP },
@@ -50,9 +50,8 @@ export const verifyOTP = async (req: Request, res: Response) => {
   const userEnteredOTP = parseInt(isValidOTP.data.OTP);
   const user = req.body.user;
 
-  if (!user) throw new Error("User data not available");
-
   try {
+    if (!user) throw new Error("User data not available");
     if (!process.env.JWT_OTP_SECRET) {
       throw new Error("JWT_OTP_SECRET environment variable is not defined.");
     }
