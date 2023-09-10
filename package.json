@@ -4,6 +4,7 @@
   "description": "Email validation system using nodejs",
   "main": "index.js",
   "scripts": {
+    "link-dev": "cd ./Link_based/backend && tsc && nodemon ./dist/index.js",
     "otp-dev": "cd ./OTP_based && tsc && nodemon ./dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
