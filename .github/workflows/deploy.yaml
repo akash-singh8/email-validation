@@ -1,0 +1,21 @@
+name: Deploy OTP_based
+
+on:
+  push:
+    branch:
+      - otp-dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: SSH and Deploy
+        env:
+          AZURE_SECRET: ${{secrets.AZURE_SECRET}}
+        run: |
+          echo "$AZURE_SECRET" > keyfile
+          ssh -i keyfile devAkash@20.232.45.86 "bash ~/deploy.sh"
