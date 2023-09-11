@@ -11,6 +11,12 @@ app.use(express.json());
 app.use("/auth", authRouter);
 app.use("/otp", otpRouter);
 
+app.get("/", (req, res) => {
+  res.send(
+    "<h1 style='font-family: sans-serif'>Welcome to Email Validator</h1>"
+  );
+});
+
 const mongodb_uri = process.env.MONGODB_URI;
 
 if (!mongodb_uri) {
