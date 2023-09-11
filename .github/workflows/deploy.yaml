@@ -21,4 +21,4 @@ jobs:
           chmod 600 keyfile
           mkdir -p ~/.ssh
           cp .github/known_hosts ~/.ssh/known_hosts
-          ssh -i keyfile devAkash@20.232.45.86 "bash ~/deploy.sh"
+          ssh -i keyfile devAkash@20.232.45.86 "sudo bash ~/deploy.sh"
