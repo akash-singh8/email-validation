@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import cors from "cors";
 import authRouter from "./routes/auth";
 import linkRouter from "./routes/link";
 import userRouter from "./routes/user";
@@ -8,6 +9,11 @@ import userRouter from "./routes/user";
 dotenv.config();
 const app = express();
 
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+  })
+);
 app.use(express.json());
 app.use("/auth", authRouter);
 app.use("/link", linkRouter);
