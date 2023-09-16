@@ -16,7 +16,7 @@
     justify-content: space-between;
     height: 420px;
     width: 280px;
-    padding-bottom: 20px;
+    padding-bottom: 24px;
 }
 
 .image{
@@ -27,35 +27,21 @@
 }
 
 .button{
+    background-color: #ff9172;
+    border-radius: 12px;
+    color: white;
+    padding: 10px 0;
     border: none;
     cursor: pointer;
     font-size: 15px;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.5px;
+    width: 75%;
 }
 
-.button_confirm{
-    background-color: #ff9172;
-    border-radius: 8px;
-    color: white;
-    font-weight: 500;
-    margin-right: 16px;
-    padding: 9px 33px;
-}
-
-.button_confirm:hover{
+.button:hover{
     background-color: #ff7f5c;
 }
 
-.button_cancle{
-    background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    color: #8a8a8a;
-    padding: 9px 30px;
-}
-
-.button_cancle:hover{
-    color: #434343;
-}
 
 .verify h2{
     font-size: 18px;

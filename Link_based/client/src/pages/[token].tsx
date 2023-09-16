@@ -59,22 +59,13 @@ const verify = () => {
         <img src="/confirm.jpg" alt="loda" className={style.image} />
         <h2>Verify your email</h2>
         <p>{email ? email : "Email Not Found"}</p>
-        <div>
-          <button
-            className={`${style.button} ${style.button_confirm}`}
-            onClick={() => {
-              email ? verifyEmail() : alert("Email Not Found");
-            }}>
-            Verify
-          </button>
-          <button
-            className={`${style.button} ${style.button_cancle}`}
-            onClick={() => {
-              window.close();
-            }}>
-            Cancle
-          </button>
-        </div>
+        <button
+          className={style.button}
+          onClick={() => {
+            email ? verifyEmail() : alert("Email Not Found");
+          }}>
+          Verify
+        </button>
       </div>
     </div>
   );
