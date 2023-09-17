@@ -2,7 +2,7 @@ name: Deploy OTP_based
 
 on:
   push:
-    branch:
+    branches:
       - otp-dev
 
 jobs:
