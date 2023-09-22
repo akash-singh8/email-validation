@@ -1,29 +1,28 @@
+import { Body, Controller, Post, Route, SuccessResponse, Response } from "tsoa";
+import { UsersService } from "../services/usersService";
 import {
-  Body,
-  Controller,
-  Example,
-  Post,
-  Route,
-  SuccessResponse,
-  Response,
-} from "tsoa";
-import {
-  UsersService,
-  UserCreationParams,
-  UserCheckParams,
-} from "../services/usersService";
-
+  signupInputSchema,
+  loginInputSchema,
+} from "../validation/authValidation";
+import { UserSignupParams, UserLoginParams } from "../services/usersService";
 @Route("auth")
 export class AuthController extends Controller {
   /**
    * Create a new account for the user..
    */
   @SuccessResponse("201", "Created")
-  @Response("404", "Invalid Input")
+  @Response("400", "Invalid Input")
   @Response("409", "Conflict")
   @Response("500", "Internal server error")
   @Post("signup")
-  public async createUser(@Body() requestBody: UserCreationParams) {
+  public async createUser(@Body() requestBody: UserSignupParams) {
+    const isValidData = signupInputSchema.safeParse(requestBody);
+
+    if (!isValidData.success) {
+      this.setStatus(400);
+      return { message: isValidData.error.issues[0].message };
+    }
+
     const newUser = new UsersService();
     const result = await newUser.create(requestBody);
 
@@ -36,10 +35,18 @@ export class AuthController extends Controller {
    */
   @SuccessResponse("200", "Success")
   @Response("403", "Forbidden")
-  @Response("404", "Not Found or Invalid Input")
+  @Response("400", "Invalid Input")
+  @Response("404", "Not Found")
   @Response("500", "Internal Server Error")
   @Post("login")
-  public async checkUser(@Body() requestBody: UserCheckParams) {
+  public async checkUser(@Body() requestBody: UserLoginParams) {
+    const isValidData = loginInputSchema.safeParse(requestBody);
+
+    if (!isValidData.success) {
+      this.setStatus(400);
+      return { message: isValidData.error.issues[0].message };
+    }
+
     const newUser = new UsersService();
     const result = await newUser.check(requestBody);
 

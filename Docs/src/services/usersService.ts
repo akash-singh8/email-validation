@@ -1,18 +1,21 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { UserInterface } from "../interfaces/userInterface";
 import sendMail from "../controllers/sendMail";
 import User from "../models/Users";
 
-export type UserCreationParams = Pick<
-  UserInterface,
-  "name" | "email" | "password"
->;
+export type UserSignupParams = {
+  name: string;
+  email: string;
+  password: string;
+};
 
-export type UserCheckParams = Pick<UserInterface, "email" | "password">;
+export type UserLoginParams = {
+  email: string;
+  password: string;
+};
 
 export class UsersService {
-  public create = async (userCreationParams: UserCreationParams) => {
+  public create = async (userCreationParams: UserSignupParams) => {
     const { name, email, password } = userCreationParams;
 
     try {
@@ -48,7 +51,7 @@ export class UsersService {
     }
   };
 
-  public check = async (userCheckParams: UserCheckParams) => {
+  public check = async (userCheckParams: UserLoginParams) => {
     const { email, password } = userCheckParams;
 
     try {
