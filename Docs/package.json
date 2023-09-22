@@ -1,17 +1,17 @@
 {
-  "name": "email-validation",
+  "name": "email-verification",
   "version": "1.0.0",
-  "description": "Docs for Link based Email validation system",
+  "description": "Docs for Link based Email verification system",
   "main": "dist/src/index.js",
   "scripts": {
     "tsoa": "tsoa",
-    "build": "npm run tsoa routes && tsc && npm run tsoa spec",
+    "build": "npm run tsoa routes && npm run tsoa spec && tsc",
     "start": "node dist/src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/akash-singh8/email-validation.git"
+    "url": "git+https://github.com/akash-singh8/email-verification.git"
   },
   "keywords": [
     "nodejs",
@@ -21,9 +21,9 @@
   "author": "Akash",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/akash-singh8/email-validation/issues"
+    "url": "https://github.com/akash-singh8/email-verification/issues"
   },
-  "homepage": "https://github.com/akash-singh8/email-validation#readme",
+  "homepage": "https://github.com/akash-singh8/email-verification#readme",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
@@ -33,7 +33,8 @@
     "mongoose": "^7.5.0",
     "nodemailer": "^6.9.4",
     "swagger-ui-express": "^5.0.0",
-    "tsoa": "^5.1.1"
+    "tsoa": "^5.1.1",
+    "zod": "^3.22.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
