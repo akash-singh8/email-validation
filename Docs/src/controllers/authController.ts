@@ -1,5 +1,9 @@
 import { Body, Controller, Post, Route, SuccessResponse } from "tsoa";
-import { UsersService, UserCreationParams } from "../services/usersService";
+import {
+  UsersService,
+  UserCreationParams,
+  UserCheckParams,
+} from "../services/usersService";
 
 @Route("auth")
 export class AuthController extends Controller {
@@ -10,7 +14,16 @@ export class AuthController extends Controller {
     const result = await newUser.create(requestBody);
 
     this.setStatus(result.status);
+    return result;
+  }
 
+  @SuccessResponse("200", "Success")
+  @Post("login")
+  public async checkUser(@Body() requestBody: UserCheckParams) {
+    const newUser = new UsersService();
+    const result = await newUser.check(requestBody);
+
+    this.setStatus(result.status);
     return result;
   }
 }
