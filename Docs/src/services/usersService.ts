@@ -19,7 +19,7 @@ export class UsersService {
       const user = await User.findOne({ email });
 
       if (user) {
-        return { message: "Email address is already in use." };
+        return { status: 409, message: "Email address is already in use." };
       }
 
       if (!process.env.JWT_AUTH_SECRET) {
@@ -41,10 +41,10 @@ export class UsersService {
       const token = jwt.sign({ id: newUser._id }, process.env.JWT_AUTH_SECRET, {
         expiresIn: "1h",
       });
-      return { message: "Signed successfully", authToken: token };
+      return { status: 201, message: "Signed successfully", authToken: token };
     } catch (err) {
       console.log(err);
-      return { message: "Internal server error during signup" };
+      return { status: 500, message: "Internal server error during signup" };
     }
   };
 
@@ -55,17 +55,20 @@ export class UsersService {
       const user = await User.findOne({ email });
 
       if (!user) {
-        return { message: `The user with the email ${email} does not exist.` };
+        return {
+          status: 404,
+          message: `The user with the email ${email} does not exist.`,
+        };
       }
 
       if (user.banned) {
-        return { message: `User ${email} is banned.` };
+        return { status: 403, message: `User ${email} is banned.` };
       }
 
       const isValidPswd = await bcrypt.compare(password, user.password);
 
       if (!isValidPswd) {
-        return { message: "Invalid password" };
+        return { status: 403, message: "Invalid password" };
       }
 
       if (!process.env.JWT_AUTH_SECRET) {
@@ -76,10 +79,10 @@ export class UsersService {
         expiresIn: "1h",
       });
 
-      return { message: "Logged successfully", authToken: token };
+      return { status: 200, message: "Logged successfully", authToken: token };
     } catch (err) {
       console.log(err);
-      return { message: "Internal server error during login" };
+      return { status: 500, message: "Internal server error during login" };
     }
   };
 }
