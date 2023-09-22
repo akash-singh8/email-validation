@@ -5,7 +5,7 @@
   "main": "dist/src/index.js",
   "scripts": {
     "tsoa": "tsoa",
-    "build": "npm run tsoa routes && tsc",
+    "build": "npm run tsoa routes && tsc && npm run tsoa spec",
     "start": "node dist/src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
