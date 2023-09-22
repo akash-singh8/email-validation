@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
 import { RegisterRoutes } from "../tsoaRoute/routes";
+import swaggerUi from "swagger-ui-express";
 
 dotenv.config();
 
@@ -15,6 +16,15 @@ app.use(
   })
 );
 
+app.use(
+  "/docs",
+  swaggerUi.serve,
+  async (req: express.Request, res: express.Response) => {
+    return res.send(
+      swaggerUi.generateHTML(await import("../build/swagger.json"))
+    );
+  }
+);
 RegisterRoutes(app);
 
 const mongodb_uri = process.env.MONGODB_URI;
