@@ -4,9 +4,18 @@
   "controllerPathGlobs": ["src/**/*Controller.ts"],
   "spec": {
     "outputDirectory": "build",
-    "specVersion": 3
+    "specVersion": 3,
+
+    "securityDefinitions": {
+      "jwt": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
   },
   "routes": {
-    "routesDir": "tsoaRoute"
+    "routesDir": "tsoaRoute",
+    "authenticationModule": "src/middlewares/authentication.ts"
   }
 }
