@@ -26,6 +26,25 @@ export function expressAuthentication(
     });
   }
 
+  if (securityName === "link") {
+    const userToken = request.headers["usertoken"] as string;
+
+    return new Promise((resolve, reject) => {
+      if (!userToken) {
+        reject(new Error("User verification token not found"));
+      } else {
+        jwt.verify(userToken, process.env.JWT_LINK_SECRET!, (err, data) => {
+          if (err) {
+            reject(new Error("Link expired, resend new Link!"));
+          } else if (data && typeof data !== "string") {
+            request.body.email = data.email;
+            resolve(data);
+          }
+        });
+      }
+    });
+  }
+
   return new Promise((resolve, reject) => {
     reject("Authorization not defined");
   });

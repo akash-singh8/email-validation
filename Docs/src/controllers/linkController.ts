@@ -22,9 +22,24 @@ export class LinkController extends Controller {
   @Patch("resend")
   public async resendLink(@Request() request: Request) {
     const requestBody: any = request.body;
-    console.log("Request Body :", requestBody);
-    const newUser = new LinkService();
-    const result = await newUser.resend(requestBody.userID);
+    const newLink = new LinkService();
+    const result = await newLink.resend(requestBody.userID);
+
+    this.setStatus(result.status);
+    return result;
+  }
+
+  /**
+   * Verifies the token attached with the verification link
+   */
+  @SuccessResponse("200", "Success")
+  @Response("500", "Internal Server Error")
+  @Security("link")
+  @Patch("verify")
+  public async checkUser(@Request() request: Request) {
+    const requestBody: any = request.body;
+    const link = new LinkService();
+    const result = await link.verify(requestBody.email);
 
     this.setStatus(result.status);
     return result;

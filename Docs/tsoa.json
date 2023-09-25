@@ -10,7 +10,14 @@
       "jwt": {
         "type": "apiKey",
         "name": "Authorization",
-        "in": "header"
+        "in": "header",
+        "description": "Enter the auth token returned on login or signup"
+      },
+      "link": {
+        "type": "apiKey",
+        "name": "userToken",
+        "in": "header",
+        "description": "Enter the token attached with verification link you received on mail"
       }
     }
   },
