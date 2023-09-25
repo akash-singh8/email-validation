@@ -21,7 +21,11 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  linkGenerated: {
+  OTP: {
+    type: String,
+    required: false,
+  },
+  totalAttempts: {
     type: Number,
     default: 0,
   },
