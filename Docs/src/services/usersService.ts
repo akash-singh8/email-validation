@@ -37,13 +37,17 @@ export class UsersService {
         name,
         email,
         password: encrypted_Pswd,
-        linkGenerated: 1,
+        totalAttempts: 1,
       });
       await newUser.save();
 
-      const token = jwt.sign({ id: newUser._id }, process.env.JWT_AUTH_SECRET, {
-        expiresIn: "1h",
-      });
+      const token = jwt.sign(
+        { id: newUser._id, verified: false, banned: false, totalAttempts: 1 },
+        process.env.JWT_AUTH_SECRET,
+        {
+          expiresIn: "1h",
+        }
+      );
       return { status: 201, message: "Signed successfully", authToken: token };
     } catch (err) {
       console.log(err);
@@ -78,9 +82,18 @@ export class UsersService {
         throw new Error("JWT_AUTH_SECRET environment variable is not defined.");
       }
 
-      const token = jwt.sign({ id: user._id }, process.env.JWT_AUTH_SECRET, {
-        expiresIn: "1h",
-      });
+      const token = jwt.sign(
+        {
+          id: user._id,
+          verified: user.verified,
+          banned: user.banned,
+          totalAttempts: user.totalAttempts,
+        },
+        process.env.JWT_AUTH_SECRET,
+        {
+          expiresIn: "1h",
+        }
+      );
 
       return { status: 200, message: "Logged successfully", authToken: token };
     } catch (err) {
