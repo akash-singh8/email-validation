@@ -3,7 +3,7 @@ import { generateLink } from "./linkHandler";
 
 type MailPromise = Promise<boolean | Error>;
 
-const sendMail = async (email: string): MailPromise => {
+const sendMail = async (email: string, otp?: number): MailPromise => {
   const mailTransporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -12,7 +12,19 @@ const sendMail = async (email: string): MailPromise => {
     },
   });
 
-  const link = generateLink(email);
+  const link = otp ? "" : generateLink(email);
+
+  const emailHtml = otp
+    ? `
+  <p>OTP for account verification:</p>
+  <h2>${otp}</h2>
+  <p>Please use this OTP to verify your account.</p>
+  <p>The OTP is valid for 5 minutes only.</p>`
+    : `
+  <p>Link for account verification:</p>
+  <a href="${link}">${link?.slice(0, 80)}</a>
+  <p>Please click on the link to verify your account.</p>
+  <p>The link is valid for 5 minutes only.</p>`;
 
   const mailDetails = {
     from: process.env.NODEMAILER_USER_EMAIL,
@@ -22,10 +34,7 @@ const sendMail = async (email: string): MailPromise => {
         <html>
           <body>
             <p>Dear User,</p>
-            <p>Link for account verification:</p>
-            <a href="${link}">${link?.slice(0, 80)}</a>
-            <p>Please click on the link to verify your account.</p>
-            <p>The link is valid for 5 minutes only.</p>
+            ${emailHtml}
             <br>
             <hr>
             <br>
@@ -36,15 +45,17 @@ const sendMail = async (email: string): MailPromise => {
   };
 
   return new Promise((resolve, reject) => {
-    if (!link) {
-      reject("Verification link not found");
+    if (!link && !otp) {
+      reject("Verification token not found");
     } else {
       mailTransporter.sendMail(mailDetails, (err, data) => {
         if (err) {
           reject(err);
         } else {
           console.log(
-            `Successfully send verification link to ${data.accepted}`
+            `Successfully send ${otp ? "OTP" : "verification link"} to ${
+              data.accepted
+            }`
           );
           resolve(true);
         }
