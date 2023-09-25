@@ -15,7 +15,7 @@ export class LinkService {
         };
       }
 
-      if (user.linkGenerated >= 7) {
+      if (user.totalAttempts >= 15) {
         await User.updateOne({ _id: user._id }, { banned: true });
 
         return {
