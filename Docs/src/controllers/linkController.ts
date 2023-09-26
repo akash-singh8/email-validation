@@ -36,7 +36,7 @@ export class LinkController extends Controller {
   @Response("500", "Internal Server Error")
   @Security("link")
   @Patch("verify")
-  public async checkUser(@Request() request: Request) {
+  public async verifyLink(@Request() request: Request) {
     const requestBody: any = request.body;
     const link = new LinkService();
     const result = await link.verify(requestBody.user);
