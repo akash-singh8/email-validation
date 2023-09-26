@@ -54,6 +54,7 @@ export class LinkService {
       const token = jwt.sign(
         {
           id: user.id,
+          email: user.email,
           verified: false,
           banned: false,
           totalAttempts: user.attempts + 1,
