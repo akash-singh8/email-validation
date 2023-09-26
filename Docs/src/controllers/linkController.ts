@@ -39,7 +39,7 @@ export class LinkController extends Controller {
   public async checkUser(@Request() request: Request) {
     const requestBody: any = request.body;
     const link = new LinkService();
-    const result = await link.verify(requestBody.email);
+    const result = await link.verify(requestBody.user);
 
     this.setStatus(result.status);
     return result;

@@ -2,16 +2,13 @@ import jwt from "jsonwebtoken";
 import User from "../models/Users";
 import sendMail from "../controllers/sendMail";
 
-export const validationCheck = async (
-  id: string,
-  attempts: number,
-  verified: boolean
-) => {
-  if (attempts >= 15) {
-    await User.updateOne({ _id: id }, { banned: true });
+export const validationCheck = async (user: UserPayloadData) => {
+  if (user.attempts >= 15) {
+    await User.updateOne({ _id: user.id }, { banned: true });
     const token = jwt.sign(
       {
-        id: id,
+        id: user.id,
+        email: user.email,
         verified: false,
         banned: true,
         totalAttempts: 16,
@@ -29,7 +26,7 @@ export const validationCheck = async (
     };
   }
 
-  if (verified) {
+  if (user.verified) {
     return { status: 409, message: "User already verified" };
   }
 
@@ -46,16 +43,12 @@ export type UserPayloadData = {
 export class LinkService {
   public resend = async (user: UserPayloadData) => {
     try {
-      const userCheck = await validationCheck(
-        user.id,
-        user.attempts,
-        user.verified
-      );
+      const userCheck = await validationCheck(user);
       if (userCheck.status !== 200) {
         return userCheck;
       }
 
-      await sendMail(user.email);
+      await sendMail(user);
       await User.updateOne({ _id: user.id }, { $inc: { totalAttempts: 1 } });
 
       const token = jwt.sign(
@@ -85,11 +78,31 @@ export class LinkService {
     }
   };
 
-  public verify = async (email: string) => {
+  // For now we aren't updating token, when a user gets
+  public verify = async (user: UserPayloadData) => {
     try {
-      await User.updateOne({ email: email }, { verified: true });
+      const userCheck = await validationCheck(user);
+      if (userCheck.status !== 200) {
+        return userCheck;
+      }
 
-      return { status: 200, message: "User verified" };
+      await User.updateOne({ _id: user.id }, { verified: true });
+
+      const token = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          verified: true,
+          banned: false,
+          totalAttempts: user.attempts,
+        },
+        process.env.JWT_AUTH_SECRET!,
+        {
+          expiresIn: "1h",
+        }
+      );
+
+      return { status: 200, message: "User verified", authToken: token };
     } catch (err) {
       console.error(err);
       return {

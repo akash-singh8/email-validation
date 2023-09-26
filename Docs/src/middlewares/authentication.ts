@@ -44,12 +44,24 @@ export function expressAuthentication(
       if (!userToken) {
         reject(new Error("User verification token not found"));
       } else {
-        jwt.verify(userToken, process.env.JWT_LINK_SECRET!, (err, data) => {
+        jwt.verify(userToken, process.env.JWT_LINK_SECRET!, (err, user) => {
           if (err) {
-            reject(new Error("Link expired, resend new Link!"));
-          } else if (data && typeof data !== "string") {
-            request.body.email = data.email;
-            resolve(data);
+            reject(err);
+          } else {
+            if (user && typeof user !== "string") {
+              if (user.banned) {
+                return reject(new Error("The user account is Banned!"));
+              }
+
+              request.body.user = {
+                id: user.id,
+                email: user.email,
+                attempts: user.totalAttempts,
+                verified: user.verified,
+              };
+
+              resolve(user);
+            }
           }
         });
       }

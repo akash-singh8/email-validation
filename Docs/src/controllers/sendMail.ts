@@ -1,9 +1,10 @@
 import nodemailer from "nodemailer";
+import { UserPayloadData } from "../services/linksService";
 import { generateLink } from "./linkHandler";
 
 type MailPromise = Promise<boolean | Error>;
 
-const sendMail = async (email: string, otp?: number): MailPromise => {
+const sendMail = async (user: UserPayloadData, otp?: number): MailPromise => {
   const mailTransporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -12,7 +13,7 @@ const sendMail = async (email: string, otp?: number): MailPromise => {
     },
   });
 
-  const link = otp ? "" : generateLink(email);
+  const link = otp ? "" : generateLink(user);
 
   const emailHtml = otp
     ? `
@@ -28,7 +29,7 @@ const sendMail = async (email: string, otp?: number): MailPromise => {
 
   const mailDetails = {
     from: process.env.NODEMAILER_USER_EMAIL,
-    to: email,
+    to: user.email,
     subject: "Verify Your Account",
     html: `
         <html>
