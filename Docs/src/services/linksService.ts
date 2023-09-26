@@ -1,37 +1,81 @@
+import jwt from "jsonwebtoken";
 import User from "../models/Users";
 import sendMail from "../controllers/sendMail";
 
+export const validationCheck = async (
+  id: string,
+  attempts: number,
+  verified: boolean
+) => {
+  if (attempts >= 15) {
+    await User.updateOne({ _id: id }, { banned: true });
+    const token = jwt.sign(
+      {
+        id: id,
+        verified: false,
+        banned: true,
+        totalAttempts: 16,
+      },
+      process.env.JWT_AUTH_SECRET!,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    return {
+      status: 403,
+      message: "Too many attempts, the account is Banned!",
+      authToken: token,
+    };
+  }
+
+  if (verified) {
+    return { status: 409, message: "User already verified" };
+  }
+
+  return { status: 200, message: "Validation Done" };
+};
+
+export type UserPayloadData = {
+  id: string;
+  email: string;
+  verified: boolean;
+  attempts: number;
+};
+
 export class LinkService {
-  public resend = async (userID: string) => {
+  public resend = async (user: UserPayloadData) => {
     try {
-      if (!userID) throw new Error("User id not found");
-
-      const user = await User.findById(userID);
-
-      if (!user || user.banned) {
-        return {
-          status: 403,
-          message: `The user account is ${user ? "banned" : "deleted"}.`,
-        };
+      const userCheck = await validationCheck(
+        user.id,
+        user.attempts,
+        user.verified
+      );
+      if (userCheck.status !== 200) {
+        return userCheck;
       }
 
-      if (user.totalAttempts >= 15) {
-        await User.updateOne({ _id: user._id }, { banned: true });
-
-        return {
-          status: 403,
-          message: "Too many attempts, the account is Banned!",
-        };
-      }
-
-      if (user.verified) {
-        return { status: 404, message: `${user.email} is already verified` };
-      }
-
-      await User.updateOne({ _id: user._id }, { $inc: { linkGenerated: 1 } });
       await sendMail(user.email);
+      await User.updateOne({ _id: user.id }, { $inc: { totalAttempts: 1 } });
 
-      return { status: 201, message: `Link resend to ${user.email}` };
+      const token = jwt.sign(
+        {
+          id: user.id,
+          verified: false,
+          banned: false,
+          totalAttempts: user.attempts + 1,
+        },
+        process.env.JWT_AUTH_SECRET!,
+        {
+          expiresIn: "1h",
+        }
+      );
+
+      return {
+        status: 201,
+        message: `Link resend to ${user.email}`,
+        authToken: token,
+      };
     } catch (err) {
       console.error(err);
       return {

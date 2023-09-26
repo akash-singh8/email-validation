@@ -16,14 +16,14 @@ export class LinkController extends Controller {
    */
   @SuccessResponse("201", "Created")
   @Response("403", "Forbidden")
-  @Response("404", "User already verified")
+  @Response("409", "User already verified")
   @Response("500", "Internal server error")
   @Security("jwt")
   @Patch("resend")
   public async resendLink(@Request() request: Request) {
     const requestBody: any = request.body;
     const newLink = new LinkService();
-    const result = await newLink.resend(requestBody.userID);
+    const result = await newLink.resend(requestBody.user);
 
     this.setStatus(result.status);
     return result;

@@ -13,13 +13,24 @@ export function expressAuthentication(
       if (!token) {
         reject(new Error("No token provided"));
       } else {
-        jwt.verify(token, process.env.JWT_AUTH_SECRET!, (err, decode) => {
+        jwt.verify(token, process.env.JWT_AUTH_SECRET!, async (err, user) => {
           if (err) {
             reject(err);
           } else {
-            if (decode && typeof decode !== "string")
-              request.body.userID = decode?.id;
-            resolve(decode);
+            if (user && typeof user !== "string") {
+              if (user.banned) {
+                return reject(new Error("The user account is Banned!"));
+              }
+
+              request.body.user = {
+                id: user.id,
+                email: user.email,
+                attempts: user.totalAttempts,
+                verified: user.verified,
+              };
+
+              resolve(user);
+            }
           }
         });
       }
