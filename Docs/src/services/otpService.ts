@@ -3,6 +3,7 @@ import User from "../models/Users";
 import sendMail from "../controllers/sendMail";
 import { validationCheck } from "./linksService";
 import { UserPayloadData } from "./linksService";
+import { otpInputSchema } from "../validation/otpValidation";
 
 export class OTPService {
   public resend = async (user: UserPayloadData) => {
@@ -56,6 +57,62 @@ export class OTPService {
       return {
         status: 500,
         message: "Internal server error while resending OTP",
+      };
+    }
+  };
+
+  public verify = async (user: UserPayloadData, otp: string) => {
+    const isValidOTP = otpInputSchema.safeParse(otp);
+
+    if (!isValidOTP.success) {
+      return {
+        status: 403,
+        message: isValidOTP.error.issues[0].message,
+      };
+    }
+
+    const userEnteredOTP = parseInt(otp);
+
+    try {
+      const userDB = await User.findById(user.id);
+
+      if (!userDB) throw new Error("User data not available");
+
+      let OTP_decode;
+      try {
+        OTP_decode = jwt.verify(userDB.OTP!, process.env.JWT_OTP_SECRET!);
+        if (typeof OTP_decode === "string") throw new Error("Invalid OTP Type");
+      } catch (err) {
+        return { status: 404, message: "OTP expired, resend new OTP!" };
+      }
+
+      const newPayload = {
+        id: user.id,
+        email: user.email,
+        verified: userEnteredOTP === OTP_decode.OTP,
+        banned: false,
+        totalAttempts: user.attempts + 1,
+      };
+
+      const newToken = jwt.sign(newPayload, process.env.JWT_AUTH_SECRET!, {
+        expiresIn: "1h",
+      });
+
+      if (newPayload.verified) {
+        await User.updateOne({ _id: user.id }, { verified: true });
+        return {
+          status: 201,
+          message: "Successfully verified",
+          authToken: newToken,
+        };
+      }
+
+      return { status: 404, message: "Invalid OTP", authToken: newToken };
+    } catch (err) {
+      console.log(err);
+      return {
+        status: 500,
+        message: "Internal server error while verifying OTP",
       };
     }
   };
