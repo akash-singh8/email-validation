@@ -29,8 +29,6 @@ export class UsersService {
         throw new Error("JWT_AUTH_SECRET environment variable is not defined.");
       }
 
-      await sendMail(email);
-
       const encrypted_Pswd = await bcrypt.hash(password, 11);
 
       const newUser = new User({
@@ -41,8 +39,21 @@ export class UsersService {
       });
       await newUser.save();
 
+      await sendMail({
+        id: newUser.id,
+        email,
+        verified: false,
+        attempts: 1,
+      });
+
       const token = jwt.sign(
-        { id: newUser._id, verified: false, banned: false, totalAttempts: 1 },
+        {
+          id: newUser.id,
+          email,
+          verified: false,
+          banned: false,
+          totalAttempts: 1,
+        },
         process.env.JWT_AUTH_SECRET,
         {
           expiresIn: "1h",
@@ -85,6 +96,7 @@ export class UsersService {
       const token = jwt.sign(
         {
           id: user._id,
+          email: user.email,
           verified: user.verified,
           banned: user.banned,
           totalAttempts: user.totalAttempts,
