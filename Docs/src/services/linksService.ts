@@ -1,37 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/Users";
 import sendMail from "../controllers/sendMail";
-
-export const validationCheck = async (user: UserPayloadData) => {
-  if (user.attempts >= 15) {
-    await User.updateOne({ _id: user.id }, { banned: true });
-    const token = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        verified: false,
-        banned: true,
-        totalAttempts: 16,
-      },
-      process.env.JWT_AUTH_SECRET!,
-      {
-        expiresIn: "1h",
-      }
-    );
-
-    return {
-      status: 403,
-      message: "Too many attempts, the account is Banned!",
-      authToken: token,
-    };
-  }
-
-  if (user.verified) {
-    return { status: 409, message: "User already verified" };
-  }
-
-  return { status: 200, message: "Validation Done" };
-};
+// import { UserPayloadData } from "../middlewares/validate";
 
 export type UserPayloadData = {
   id: string;
@@ -43,11 +13,6 @@ export type UserPayloadData = {
 export class LinkService {
   public resend = async (user: UserPayloadData) => {
     try {
-      const userCheck = await validationCheck(user);
-      if (userCheck.status !== 200) {
-        return userCheck;
-      }
-
       await sendMail(user);
       await User.updateOne({ _id: user.id }, { $inc: { totalAttempts: 1 } });
 
@@ -82,11 +47,6 @@ export class LinkService {
   // For now we aren't updating token, when a user gets
   public verify = async (user: UserPayloadData) => {
     try {
-      const userCheck = await validationCheck(user);
-      if (userCheck.status !== 200) {
-        return userCheck;
-      }
-
       await User.updateOne({ _id: user.id }, { verified: true });
 
       const token = jwt.sign(

@@ -1,9 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/Users";
 import sendMail from "../controllers/sendMail";
-import { validationCheck } from "./linksService";
 import { UserPayloadData } from "./linksService";
-import { otpInputSchema } from "../validation/otpValidation";
 
 export class OTPService {
   public resend = async (user: UserPayloadData) => {
@@ -11,11 +9,6 @@ export class OTPService {
       if (!user) throw new Error("User data not available");
       if (!process.env.JWT_OTP_SECRET)
         throw new Error("JWT_OTP_SECRET environment variable is not defined.");
-
-      const userCheck = await validationCheck(user);
-      if (userCheck.status !== 200) {
-        return userCheck;
-      }
 
       const new_OTP = Math.floor(Math.random() * 999999);
       const encrypted_OTP = jwt.sign(
@@ -29,7 +22,7 @@ export class OTPService {
       await sendMail(user, new_OTP);
       await User.updateOne(
         { _id: user.id },
-        { OTP: encrypted_OTP, totalAttempts: user.attempts + 1 }
+        { OTP: encrypted_OTP, $inc: { totalAttempts: 1 } }
       );
 
       const token = jwt.sign(
@@ -51,7 +44,6 @@ export class OTPService {
         message: `OTP resend to ${user.email}`,
         authToken: token,
       };
-      // send new token
     } catch (err) {
       console.log(err);
       return {
@@ -62,15 +54,6 @@ export class OTPService {
   };
 
   public verify = async (user: UserPayloadData, otp: string) => {
-    const isValidOTP = otpInputSchema.safeParse(otp);
-
-    if (!isValidOTP.success) {
-      return {
-        status: 403,
-        message: isValidOTP.error.issues[0].message,
-      };
-    }
-
     const userEnteredOTP = parseInt(otp);
 
     try {
