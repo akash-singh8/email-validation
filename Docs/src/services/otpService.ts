@@ -90,6 +90,7 @@ export class OTPService {
         };
       }
 
+      await User.updateOne({ _id: user.id }, { $inc: { totalAttempts: 1 } });
       return { status: 404, message: "Invalid OTP", authToken: newToken };
     } catch (err) {
       console.log(err);
